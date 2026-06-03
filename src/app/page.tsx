@@ -1,4 +1,5 @@
 import { auth } from '@/infrastructure/auth/auth';
+import { logoutAction } from '@/app/(auth)/actions';
 import Link from 'next/link';
 
 export default async function HomePage() {
@@ -29,6 +30,14 @@ export default async function HomePage() {
                   Panel de admin
                 </Link>
               )}
+              <form action={logoutAction}>
+                <button
+                  type="submit"
+                  className="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-600"
+                >
+                  Cerrar sesión
+                </button>
+              </form>
             </>
           ) : (
             <>

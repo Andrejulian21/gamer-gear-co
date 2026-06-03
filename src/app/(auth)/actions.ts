@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { redirect } from 'next/navigation';
-import { signIn } from '@/infrastructure/auth/auth';
+import { signIn, signOut } from '@/infrastructure/auth/auth';
 import { prisma } from '@/infrastructure/db/prisma';
 
 const registerSchema = z.object({
@@ -102,5 +102,10 @@ export async function loginAction(_prevState: AuthState, formData: FormData): Pr
     };
   }
 
+  redirect('/');
+}
+
+export async function logoutAction() {
+  await signOut({ redirect: false });
   redirect('/');
 }
