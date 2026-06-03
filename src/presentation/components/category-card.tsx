@@ -13,7 +13,7 @@ export interface CategoryCardProps {
 }
 
 export function CategoryCard({ category, productCount, className }: CategoryCardProps) {
-  const href = `/categorias/${category.slug}`;
+  const href = `/categories/${category.slug}`;
 
   return (
     <Link

@@ -19,9 +19,8 @@ export interface ShopNavbarProps {
 }
 
 const NAV_LINKS = [
-  { href: '/productos', label: 'Productos' },
-  { href: '/marcas', label: 'Marcas' },
-  { href: '/categorias', label: 'Categorias' },
+  { href: '/products', label: 'Productos' },
+  { href: '/brands', label: 'Marcas' },
 ] as const;
 
 export function ShopNavbar({ session, className }: ShopNavbarProps) {
@@ -67,7 +66,7 @@ export function ShopNavbar({ session, className }: ShopNavbarProps) {
           role="search"
           aria-label="Buscar productos"
           className="ml-auto hidden max-w-sm flex-1 md:flex"
-          action="/productos"
+          action="/products"
         >
           <label htmlFor="navbar-search" className="sr-only">
             Buscar productos
@@ -89,7 +88,7 @@ export function ShopNavbar({ session, className }: ShopNavbarProps) {
 
         <div className="ml-auto flex items-center gap-2 md:ml-0">
           <Button asChild variant="ghost" size="icon" aria-label="Ver carrito de compras">
-            <Link href="/carrito">
+            <Link href="/cart">
               <ShoppingCart className="h-5 w-5" aria-hidden="true" />
             </Link>
           </Button>
@@ -97,7 +96,7 @@ export function ShopNavbar({ session, className }: ShopNavbarProps) {
           {isAuthed ? (
             <>
               <Button asChild variant="ghost" size="icon" aria-label="Mi cuenta">
-                <Link href="/cuenta">
+                <Link href="/account">
                   <User className="h-5 w-5" aria-hidden="true" />
                 </Link>
               </Button>

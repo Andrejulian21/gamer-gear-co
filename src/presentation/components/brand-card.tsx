@@ -13,7 +13,7 @@ export interface BrandCardProps {
 }
 
 export function BrandCard({ brand, productCount, className }: BrandCardProps) {
-  const href = `/marcas/${brand.slug}`;
+  const href = `/brands/${brand.slug}`;
 
   return (
     <Link

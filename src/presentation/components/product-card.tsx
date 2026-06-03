@@ -44,7 +44,7 @@ function StockIndicator({ stock }: { stock: number }) {
 
 export function ProductCard({ product, brandName, className, priority = false }: ProductCardProps) {
   const cover = product.images[0];
-  const href = `/productos/${product.slug}`;
+  const href = `/products/${product.slug}`;
 
   return (
     <Card
