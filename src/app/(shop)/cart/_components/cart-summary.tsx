@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Truck, Lock } from 'lucide-react';
+import { ArrowRight, Truck, CreditCard } from 'lucide-react';
 
 import { Button } from '@/presentation/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/presentation/components/ui/card';
@@ -16,10 +16,8 @@ interface CartSummaryProps {
  * Order summary panel for the cart page.
  *
  * Server component — receives a pre-computed subtotal from the page
- * and renders the breakdown plus the "Continuar al checkout" CTA.
- *
- * Checkout is intentionally disabled with a "Pronto" badge because
- * the checkout flow ships in Phase 4 (Wompi integration).
+ * and renders the breakdown plus the "Proceder al pago" CTA that
+ * navigates to /checkout (Phase 4).
  */
 export function CartSummary({ subtotal, itemCount }: CartSummaryProps) {
   const freeShippingThreshold = 300_000;
@@ -74,19 +72,15 @@ export function CartSummary({ subtotal, itemCount }: CartSummaryProps) {
           </div>
         )}
 
-        <Button
-          type="button"
-          variant="default"
-          size="lg"
-          disabled
-          className="w-full"
-          aria-label="Continuar al checkout — disponible pronto"
-        >
-          <Lock className="h-4 w-4" aria-hidden="true" />
-          Continuar al checkout
-          <Badge variant="secondary" className="bg-background/20 ml-2 text-primary-foreground">
-            Pronto
-          </Badge>
+        <Button asChild type="button" variant="default" size="lg" className="w-full">
+          <Link
+            href="/checkout"
+            aria-label="Proceder al pago — ir al checkout"
+            data-testid="checkout-link"
+          >
+            <CreditCard className="h-4 w-4" aria-hidden="true" />
+            Proceder al pago
+          </Link>
         </Button>
 
         <Link

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { LogIn, LogOut, Search, ShoppingCart, User } from 'lucide-react';
+import { LogIn, LogOut, Package, Search, ShoppingCart, User } from 'lucide-react';
 
 import { Button } from '@/presentation/components/ui/button';
 import { Input } from '@/presentation/components/ui/input';
@@ -61,6 +61,16 @@ export function ShopNavbar({ session, className }: ShopNavbarProps) {
                 </Link>
               </li>
             ))}
+            {isAuthed ? (
+              <li>
+                <Link
+                  href="/orders"
+                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  Mis pedidos
+                </Link>
+              </li>
+            ) : null}
           </ul>
         </nav>
 
@@ -89,6 +99,19 @@ export function ShopNavbar({ session, className }: ShopNavbarProps) {
         </form>
 
         <div className="ml-auto flex items-center gap-2 md:ml-0">
+          {isAuthed ? (
+            <Button
+              asChild
+              variant="ghost"
+              size="icon"
+              aria-label="Mis pedidos"
+              className="md:hidden"
+            >
+              <Link href="/orders">
+                <Package className="h-5 w-5" aria-hidden="true" />
+              </Link>
+            </Button>
+          ) : null}
           <Button
             asChild
             variant="ghost"

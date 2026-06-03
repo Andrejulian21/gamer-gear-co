@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, ChevronLeft, ArrowRight } from 'lucide-react';
 
 import { auth } from '@/infrastructure/auth/auth';
 import { getCartDeps } from '@/presentation/lib/cart-deps';
@@ -9,7 +9,6 @@ import { formatCOP } from '@/presentation/lib/price-format';
 import { Button } from '@/presentation/components/ui/button';
 import { Separator } from '@/presentation/components/ui/separator';
 import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
 
 import { CartItemRow, type CartItemView } from './_components/cart-item-row';
 import { CartSummary } from './_components/cart-summary';
@@ -115,6 +114,26 @@ export default async function CartPage() {
       <div className="mt-12 text-xs text-muted-foreground">
         Los precios incluyen IVA. El envío se calcula en el siguiente paso.
         <span className="ml-2 hidden sm:inline">Subtotal referencial: {formatCOP(subtotal)}</span>
+      </div>
+
+      <div className="border-border/60 mt-6 flex flex-col-reverse items-stretch gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-end">
+        <Button asChild variant="ghost" size="default">
+          <Link href="/products">
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            Seguir comprando
+          </Link>
+        </Button>
+        <Button
+          asChild
+          size="lg"
+          className="w-full sm:w-auto sm:min-w-[16rem]"
+          data-testid="checkout-link-bottom"
+        >
+          <Link href="/checkout">
+            Proceder al pago
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </Button>
       </div>
     </div>
   );
