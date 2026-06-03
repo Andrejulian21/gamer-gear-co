@@ -2,26 +2,111 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+/*
+ * Gaming-first palette.
+ * Dark zinc base with a single neon lime accent.
+ * All component colors MUST come from these CSS variables
+ * (via Tailwind tokens defined in tailwind.config.ts).
+ */
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Surfaces */
+    --background: #09090b; /* zinc-950 - near black */
+    --foreground: #fafafa; /* zinc-50 */
+
+    --card: #18181b; /* zinc-900 */
+    --card-foreground: #fafafa;
+
+    --popover: #18181b;
+    --popover-foreground: #fafafa;
+
+    /* Brand: neon lime - sole accent */
+    --primary: #a3e635; /* lime-400 */
+    --primary-foreground: #09090b;
+
+    --secondary: #27272a; /* zinc-800 */
+    --secondary-foreground: #fafafa;
+
+    --muted: #27272a;
+    --muted-foreground: #a1a1aa; /* zinc-400 */
+
+    --accent: #1f1f23;
+    --accent-foreground: #fafafa;
+
+    --destructive: #ef4444; /* red-500 */
+    --destructive-foreground: #fafafa;
+
+    --border: #27272a; /* zinc-800 */
+    --input: #27272a;
+    --ring: #a3e635; /* focus ring matches primary */
+
+    --radius: 0.625rem;
+  }
+
+  .light {
+    --background: #ffffff;
+    --foreground: #09090b;
+    --card: #ffffff;
+    --card-foreground: #09090b;
+    --popover: #ffffff;
+    --popover-foreground: #09090b;
+    --primary: #65a30d; /* lime-600 for AA contrast on white */
+    --primary-foreground: #ffffff;
+    --secondary: #f4f4f5;
+    --secondary-foreground: #09090b;
+    --muted: #f4f4f5;
+    --muted-foreground: #52525b;
+    --accent: #f4f4f5;
+    --accent-foreground: #09090b;
+    --destructive: #dc2626;
+    --destructive-foreground: #fafafa;
+    --border: #e4e4e7;
+    --input: #e4e4e7;
+    --ring: #65a30d;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body), system-ui, sans-serif;
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display), system-ui, sans-serif;
+  }
+  /* Honor users who request reduced motion. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  /* Subtle glow that pairs with the neon accent on dark backgrounds. */
+  .text-glow {
+    text-shadow: 0 0 12px rgb(163 230 53 / 0.35);
   }
 }
