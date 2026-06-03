@@ -17,6 +17,7 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+  FAILED
 }
 
 model User {

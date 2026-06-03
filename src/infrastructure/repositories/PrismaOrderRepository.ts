@@ -7,7 +7,7 @@ const toDomain = (o: {
   id: string;
   userId: string;
   total: Prisma.Decimal;
-  status: 'PENDING' | 'PAID' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  status: 'PENDING' | 'PAID' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'FAILED';
   wompiReference: string | null;
   shippingAddress: Prisma.JsonValue;
   createdAt: Date;
