@@ -1,9 +1,11 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { LogIn, LogOut, Search, ShoppingCart, User } from 'lucide-react';
 
 import { Button } from '@/presentation/components/ui/button';
 import { Input } from '@/presentation/components/ui/input';
 import { Separator } from '@/presentation/components/ui/separator';
+import { NavbarCartCount } from '@/presentation/components/navbar-cart-count';
 import { cn } from '@/presentation/lib/utils';
 
 type MinimalSession = {
@@ -87,9 +89,18 @@ export function ShopNavbar({ session, className }: ShopNavbarProps) {
         </form>
 
         <div className="ml-auto flex items-center gap-2 md:ml-0">
-          <Button asChild variant="ghost" size="icon" aria-label="Ver carrito de compras">
-            <Link href="/cart">
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            aria-label="Ver carrito de compras"
+            className="relative"
+          >
+            <Link href="/cart" data-testid="cart-link">
               <ShoppingCart className="h-5 w-5" aria-hidden="true" />
+              <Suspense fallback={null}>
+                <NavbarCartCount />
+              </Suspense>
             </Link>
           </Button>
 
