@@ -1,10 +1,10 @@
+import 'dotenv/config';
 import { defineConfig } from 'prisma/config';
 
-// `databaseUrl` is read lazily so that `prisma generate` (which doesn't
-// touch the DB) works in environments where DATABASE_URL is not yet
-// available — namely `pnpm install` on Vercel, where env vars are only
-// exposed at build-time, not install-time. `prisma migrate` and other
-// DB-touching commands still get the value when DATABASE_URL is set.
+// Load .env locally so DATABASE_URL is available to `prisma migrate`,
+// `prisma db push`, and the seed. On Vercel install-time there is no
+// .env, so `dotenv/config` is a no-op and the conditional spread below
+// keeps the config valid for `prisma generate` (which doesn't need DB).
 const databaseUrl = process.env.DATABASE_URL;
 
 export default defineConfig({
