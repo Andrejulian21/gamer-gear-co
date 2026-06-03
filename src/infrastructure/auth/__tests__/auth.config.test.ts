@@ -7,7 +7,7 @@
  *
  * We import `authConfig` and call `authorized` with synthetic
  * `request` objects to verify the routing decisions:
- *   - /admin/* requires ADMIN role; non-admins are redirected to /login
+ *   - /admin/* requires ADMIN role; anonymous → /login, non-admin → /
  *   - /account and /cart require login; anonymous users are redirected
  *   - /login and /register redirect already-signed-in users to /
  *   - everything else is allowed through
@@ -56,7 +56,7 @@ describe('authConfig.callbacks.authorized', () => {
       expect(location).toContain('next=%2Fadmin');
     });
 
-    it('redirects non-admin (USER) users to /login', () => {
+    it('redirects non-admin (USER) users to / (breaks login redirect loop)', () => {
       const result = authorized({
         auth: authFor({ id: 'u1', role: 'USER' }),
         request: makeRequest('/admin/products'),
@@ -64,8 +64,9 @@ describe('authConfig.callbacks.authorized', () => {
 
       expect(isRedirect(result)).toBe(true);
       const location = (result as Response).headers.get('location');
-      expect(location).toContain('/login');
-      expect(location).toContain('next=%2Fadmin%2Fproducts');
+      // Non-admin signed-in users go to / (not /login) to avoid a
+      // redirect loop with /login bouncing logged-in users via `next`.
+      expect(location).toMatch(/\/$/);
     });
 
     it('allows ADMIN users through', () => {

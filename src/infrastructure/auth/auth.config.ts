@@ -16,14 +16,20 @@ export const authConfig = {
       // Admin routes require BOTH authentication AND the ADMIN role.
       // The role is encoded in the JWT (see `jwt` callback below), so
       // this check stays Edge-compatible — no Prisma / DB lookup.
-      // A non-admin user is bounced to /login (the same response as
-      // an unauthenticated user — we don't leak the existence of the
-      // admin area to role-less users).
+      // - Unauthenticated → /login?next=<original>
+      // - Authenticated but not ADMIN → / (home). Sending them back
+      //   to /login would create a redirect loop (/login bounces
+      //   logged-in users to `next`=/admin which bounces back here).
+      //   Sending to / gives them a clean landing without leaking
+      //   the existence of the admin area.
       if (isOnAdmin) {
-        if (!isLoggedIn || auth?.user?.role !== 'ADMIN') {
+        if (!isLoggedIn) {
           const loginUrl = new URL('/login', nextUrl);
           loginUrl.searchParams.set('next', nextUrl.pathname + nextUrl.search);
           return Response.redirect(loginUrl);
+        }
+        if (auth?.user?.role !== 'ADMIN') {
+          return Response.redirect(new URL('/', nextUrl));
         }
         return true;
       }
