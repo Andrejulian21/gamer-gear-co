@@ -1,162 +1,157 @@
 # Gamer Gear Colombia
 
-> Full-stack e-commerce platform for gaming peripherals in Colombia, built as a portfolio project to demonstrate modern web development skills.
+> Plataforma de e-commerce full-stack para periféricos gamer en Colombia, construida como proyecto de portafolio para demostrar habilidades modernas de desarrollo web.
 
 [![CI](https://github.com/Andrejulian21/gamer-gear-co/actions/workflows/ci.yml/badge.svg)](https://github.com/Andrejulian21/gamer-gear-co/actions/workflows/ci.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black?logo=next.js)](https://nextjs.org/)
 [![License: None](https://img.shields.io/badge/License-None-red)]()
 
-[Demo](https://gamer-gear-co.vercel.app) · [Report Bug](https://github.com/Andrejulian21/gamer-gear-co/issues) · [Request Feature](https://github.com/Andrejulian21/gamer-gear-co/issues)
+[Demo](https://gamer-gear-co.vercel.app) · [Reportar Bug](https://github.com/Andrejulian21/gamer-gear-co/issues) · [Solicitar Feature](https://github.com/Andrejulian21/gamer-gear-co/issues)
 
-## About
+## Acerca del proyecto
 
-This is a **full-stack e-commerce application** for selling gaming peripherals (mice, keyboards, headsets, mousepads) from top brands in the Colombian market: **Razer, Logitech G, Corsair, HyperX, and Redragon**.
+Aplicación **e-commerce full-stack** para vender periféricos gamer (mouse, teclados, headsets, mousepads) de las marcas más importantes del mercado colombiano: **Razer, Logitech G, Corsair, HyperX y Redragon**.
 
-The goal is to demonstrate a production-ready e-commerce architecture with real payment integration (Wompi — supports PSE, Nequi, Bancolombia, credit/debit cards), role-based authentication (USER + ADMIN), and a complete admin panel for product/order management.
+El objetivo es demostrar una arquitectura de e-commerce lista para producción con integración real de pagos (**Wompi** — soporta PSE, Nequi, Bancolombia y tarjetas crédito/débito), autenticación con roles (**USER** y **ADMIN**) y un panel administrativo completo para gestionar productos y órdenes.
 
-**Why this project?** I built it as a portfolio piece to showcase my full-stack development skills to recruiters. It covers the entire stack: database design, REST/Server Actions, authentication, payments, file uploads, emails, testing, CI/CD, and deployment.
+**¿Por qué este proyecto?** Lo construí como pieza de portafolio para mostrar mis habilidades full-stack a reclutadores. Cubre toda la pila: diseño de base de datos, Server Actions, autenticación, pagos, subida de archivos, emails, testing, CI/CD y despliegue.
 
-## Features
+## Funcionalidades
 
-- Shopping **Product catalog** with 5 brands and 4 categories
-- Search **Filtering and search** by brand, category, and price range
-- Cart **Persistent cart** with optimistic updates
-- Payment **Colombian payments** via Wompi (PSE, Nequi, Bancolombia, cards)
-- Auth **Role-based auth** with NextAuth v5 (USER + ADMIN)
-- User **User profile** with order history and addresses
-- Admin **Admin panel** for product CRUD, order management, and user roles
-- Charts **Sales dashboard** with Recharts visualizations
-- Email **Transactional emails** via Resend
-- Images **Image uploads** via Vercel Blob
-- Test **TDD on domain layer** (Clean Architecture use cases)
-- CI/CD **CI/CD** with GitHub Actions
-- Mobile **Responsive design** (mobile-first)
+- Shopping **Catálogo de productos** con 5 marcas y 4 categorías
+- Search **Filtros y búsqueda** por marca, categoría y rango de precio
+- Cart **Carrito persistente** con actualizaciones optimistas
+- Payment **Pagos colombianos** vía Wompi (PSE, Nequi, Bancolombia, tarjetas)
+- Auth **Auth por roles** con NextAuth v5 (USER + ADMIN)
+- User **Perfil de usuario** con historial de órdenes y direcciones
+- Admin **Panel administrativo** con CRUD de productos, gestión de órdenes y roles
+- Charts **Dashboard de ventas** con visualizaciones en Recharts
+- Email **Emails transaccionales** vía Resend
+- Images **Subida de imágenes** vía Vercel Blob
+- Test **TDD en capa de dominio** (casos de uso con Clean Architecture)
+- CI/CD **CI/CD** con GitHub Actions
+- Mobile **Diseño responsive** (mobile-first)
 
-## Tech Stack
+## Stack tecnológico
 
-| Layer | Technology |
-|-------|-----------|
+| Capa | Tecnología |
+|------|-----------|
 | **Framework** | Next.js 14 (App Router) + TypeScript |
-| **Styling** | Tailwind CSS + shadcn/ui |
-| **Database** | PostgreSQL (Neon free tier) |
+| **Estilos** | Tailwind CSS + shadcn/ui |
+| **Base de datos** | PostgreSQL (Neon free tier) |
 | **ORM** | Prisma 7 |
-| **Auth** | NextAuth.js v5 (Auth.js) with Credentials |
-| **Payments** | Wompi (Colombian gateway) |
-| **State** | Zustand (cart) + React Query (data) |
-| **Forms** | React Hook Form + Zod |
-| **Charts** | Recharts (admin dashboard) |
+| **Auth** | NextAuth.js v5 (Auth.js) con Credentials |
+| **Pagos** | Wompi (pasarela colombiana) |
+| **Estado** | Zustand (carrito) + React Query (datos) |
+| **Formularios** | React Hook Form + Zod |
+| **Gráficas** | Recharts (dashboard admin) |
 | **Email** | Resend |
-| **Storage** | Vercel Blob |
+| **Almacenamiento** | Vercel Blob |
 | **Testing** | Vitest (unit) + Playwright (E2E) |
 | **CI/CD** | GitHub Actions |
 | **Deploy** | Vercel |
 
-## Architecture
+## Arquitectura
 
-This project follows **Clean Architecture** principles to keep the domain logic decoupled from frameworks and external services:
+El proyecto sigue principios de **Clean Architecture** para mantener la lógica de dominio desacoplada de frameworks y servicios externos:
 
 ```
 src/
-├── app/                    # Next.js routes (presentation)
+├── app/                    # Rutas de Next.js (presentación)
 │   ├── (auth)/            # /login, /register
 │   ├── (shop)/            # /products, /brands, /cart, /checkout
 │   ├── (account)/         # /profile, /orders, /addresses
 │   ├── (admin)/           # /admin/products, /admin/orders, /admin/users
 │   └── api/               # Webhooks (Wompi, etc.)
-├── domain/                # Pure business logic (NO framework dependencies)
-│   ├── entities/          # Domain types and factories
-│   ├── repositories/      # Repository interfaces (ports)
-│   └── use-cases/         # Business rules (TDD-tested)
-├── infrastructure/        # External adapters
-│   ├── db/                # Prisma client
-│   ├── payment/           # Wompi client + signature verification
-│   └── auth/              # NextAuth configuration
-├── presentation/          # UI components and hooks
-└── shared/                # Utils, types, constants
+├── domain/                # Lógica de negocio pura (SIN dependencias de frameworks)
+│   ├── entities/          # Tipos de dominio y factorías
+│   ├── repositories/      # Interfaces de repositorios (puertos)
+│   └── use-cases/         # Reglas de negocio (testeadas con TDD)
+├── infrastructure/        # Adaptadores externos
+│   ├── db/                # Cliente Prisma
+│   ├── payment/           # Cliente Wompi + verificación de firma
+│   └── auth/              # Configuración NextAuth
+├── presentation/          # Componentes UI y hooks
+└── shared/                # Utils, tipos, constantes
 ```
 
-**Why this matters for portfolio:** It shows I understand separation of concerns, dependency inversion, and that domain logic is not coupled to Next.js or Prisma.
+**Por qué importa para un portafolio:** Demuestra que entiendo separación de responsabilidades, inversión de dependencias y que la lógica de dominio no está acoplada a Next.js o Prisma.
 
-## Getting Started
+## Empezando
 
-### Prerequisites
+### Prerrequisitos
 
 - Node.js 22+
 - pnpm 10+
-- PostgreSQL database (or use [Neon](https://neon.tech) free tier)
+- Base de datos PostgreSQL (o usar el [free tier de Neon](https://neon.tech))
 
-### Setup
+### Instalación
 
 ```bash
-# 1. Clone the repo
+# 1. Clonar el repo
 git clone https://github.com/Andrejulian21/gamer-gear-co.git
 cd gamer-gear-co
 
-# 2. Install dependencies
+# 2. Instalar dependencias
 pnpm install
 
-# 3. Set up environment variables
+# 3. Configurar variables de entorno
 cp .env.example .env
-# Edit .env with your actual DATABASE_URL, NEXTAUTH_SECRET, WOMPI keys, etc.
+# Edita .env con tus valores reales de DATABASE_URL, NEXTAUTH_SECRET, llaves WOMPI, etc.
 
-# 4. Set up the database
+# 4. Configurar la base de datos
 pnpm prisma:generate
 pnpm prisma:migrate
 
-# 5. (Optional) Seed the database
+# 5. (Opcional) Sembrar la base de datos
 pnpm prisma:seed
 
-# 6. Run the development server
+# 6. Levantar el servidor de desarrollo
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
-## Available Scripts
+## Scripts disponibles
 
-| Command | Description |
+| Comando | Descripción |
 |---------|-------------|
-| `pnpm dev` | Start development server |
-| `pnpm build` | Build for production |
-| `pnpm start` | Start production server |
-| `pnpm lint` | Run ESLint |
-| `pnpm typecheck` | Run TypeScript compiler check |
-| `pnpm test` | Run unit tests (Vitest) |
-| `pnpm test:watch` | Run unit tests in watch mode |
-| `pnpm test:e2e` | Run E2E tests (Playwright) |
-| `pnpm format` | Format code with Prettier |
-| `pnpm prisma:generate` | Generate Prisma client |
-| `pnpm prisma:migrate` | Run database migrations |
-| `pnpm prisma:studio` | Open Prisma Studio |
-| `pnpm prisma:seed` | Seed the database |
+| `pnpm dev` | Iniciar servidor de desarrollo |
+| `pnpm build` | Compilar para producción |
+| `pnpm start` | Iniciar servidor de producción |
+| `pnpm lint` | Ejecutar ESLint |
+| `pnpm typecheck` | Ejecutar verificación de TypeScript |
+| `pnpm test` | Correr tests unitarios (Vitest) |
+| `pnpm test:watch` | Correr tests unitarios en modo watch |
+| `pnpm test:e2e` | Correr tests E2E (Playwright) |
+| `pnpm format` | Formatear código con Prettier |
+| `pnpm prisma:generate` | Generar cliente de Prisma |
+| `pnpm prisma:migrate` | Ejecutar migraciones de base de datos |
+| `pnpm prisma:studio` | Abrir Prisma Studio |
+| `pnpm prisma:seed` | Sembrar la base de datos |
 
-## Project Status
+## Estado del proyecto
 
-This is a **portfolio project in active development**. Current phase: **Phase 0 — Setup & Infrastructure**.
+Este es un **proyecto de portafolio en desarrollo activo**. Fase actual: **Phase 1 — DB + Auth** ✅
 
 ### Roadmap
 
-- [x] **Phase 0** — Project setup, tooling, CI, README
-- [ ] **Phase 1** — Database schema, NextAuth, role-based middleware
-- [ ] **Phase 2** — Public catalog (browse, filter, search)
-- [ ] **Phase 3** — Persistent cart with Zustand
-- [ ] **Phase 4** — Checkout + Wompi payment integration + webhooks
-- [ ] **Phase 5** — Admin panel (CRUD products, manage orders)
-- [ ] **Phase 6** — User profile, addresses, order history
-- [ ] **Phase 7** — Polish, SEO, screenshots, Lighthouse 90+
-- [ ] **Phase 8** — Deploy to Vercel, configure production Wompi
+- [x] **Phase 0** — Setup del proyecto, tooling, CI, README
+- [x] **Phase 1** — Schema de base de datos, NextAuth, middleware por roles
+- [ ] **Phase 2** — Catálogo público (navegación, filtros, búsqueda)
+- [ ] **Phase 3** — Carrito persistente con Zustand
+- [ ] **Phase 4** — Checkout + integración de pagos Wompi + webhooks
+- [ ] **Phase 5** — Panel admin (CRUD productos, gestión de órdenes)
+- [ ] **Phase 6** — Perfil de usuario, direcciones, historial de órdenes
+- [ ] **Phase 7** — Pulido, SEO, screenshots, Lighthouse 90+
+- [ ] **Phase 8** — Deploy en Vercel, configurar Wompi en producción
 
-## License
+## Licencia
 
-This project has **no license** — all rights reserved. The code is shared publicly for portfolio purposes, but please contact me before using it commercially.
+Este proyecto **no tiene licencia** — todos los derechos reservados. El código se comparte públicamente con fines de portafolio, pero por favor contáctame antes de usarlo comercialmente.
 
-## Author
+## Autor
 
 **Andrejulian21**
 - GitHub: [@Andrejulian21](https://github.com/Andrejulian21)
-- LinkedIn: [Add your LinkedIn URL here]
-
----
-
-Built with ❤️ for the Colombian gaming community
