@@ -1,6 +1,12 @@
 import { prisma } from '../db/prisma';
-import type { OrderRepository, OrderFilters } from '@/domain/repositories/OrderRepository';
+import type {
+  OrderRepository,
+  OrderFilters,
+  OrderListFilters,
+  OrderPagination,
+} from '@/domain/repositories/OrderRepository';
 import type { Order, CreateOrderInput } from '@/domain/entities/Order';
+import { OrderStatus } from '@/domain/entities/OrderStatus';
 import { Prisma } from '@prisma/client';
 
 const toDomain = (o: {
@@ -123,5 +129,50 @@ export class PrismaOrderRepository implements OrderRepository {
 
   async delete(id: string): Promise<void> {
     await prisma.order.delete({ where: { id } });
+  }
+
+  async findAllPaginated(filters: OrderListFilters, pagination: OrderPagination): Promise<Order[]> {
+    const where: Prisma.OrderWhereInput = {};
+    if (filters.status) where.status = filters.status;
+
+    const orders = await prisma.order.findMany({
+      where,
+      include: { items: true },
+      orderBy: { createdAt: 'desc' },
+      skip: (pagination.page - 1) * pagination.pageSize,
+      take: pagination.pageSize,
+    });
+    return orders.map(toDomain);
+  }
+
+  async countByStatus(): Promise<Record<OrderStatus, number>> {
+    // Initialize with zero for every status so the caller gets a
+    // stable, exhaustive record (no missing keys).
+    const base: Record<OrderStatus, number> = {
+      [OrderStatus.PENDING]: 0,
+      [OrderStatus.PAID]: 0,
+      [OrderStatus.SHIPPED]: 0,
+      [OrderStatus.DELIVERED]: 0,
+      [OrderStatus.CANCELLED]: 0,
+      [OrderStatus.FAILED]: 0,
+    };
+
+    const groups = await prisma.order.groupBy({
+      by: ['status'],
+      _count: { _all: true },
+    });
+
+    for (const g of groups) {
+      base[g.status as OrderStatus] = g._count._all;
+    }
+    return base;
+  }
+
+  async sumRevenuePaid(): Promise<number> {
+    const result = await prisma.order.aggregate({
+      where: { status: 'PAID' },
+      _sum: { total: true },
+    });
+    return result._sum.total?.toNumber() ?? 0;
   }
 }

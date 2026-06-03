@@ -1,5 +1,5 @@
 import { prisma } from '../db/prisma';
-import type { UserRepository } from '@/domain/repositories/UserRepository';
+import type { UserRepository, UserListFilters } from '@/domain/repositories/UserRepository';
 import type { User, CreateUserInput } from '@/domain/entities/User';
 
 const toDomain = (u: {
@@ -66,5 +66,33 @@ export class PrismaUserRepository implements UserRepository {
   async findAll(): Promise<User[]> {
     const users = await prisma.user.findMany({ orderBy: { createdAt: 'desc' } });
     return users.map(toDomain);
+  }
+
+  async findAllPaginated(filters: UserListFilters): Promise<User[]> {
+    const { page, pageSize, search } = filters;
+    const where = search
+      ? {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' as const } },
+            { email: { contains: search, mode: 'insensitive' as const } },
+          ],
+        }
+      : undefined;
+
+    const users = await prisma.user.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    });
+    return users.map(toDomain);
+  }
+
+  async countAll(): Promise<number> {
+    return prisma.user.count();
+  }
+
+  async countByRole(role: 'USER' | 'ADMIN'): Promise<number> {
+    return prisma.user.count({ where: { role } });
   }
 }

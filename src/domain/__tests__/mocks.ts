@@ -82,6 +82,28 @@ export const createMockUserRepository = (
       }
     }),
     findAll: vi.fn(async () => Array.from(users.values())),
+    findAllPaginated: vi.fn(
+      async ({ page, pageSize, search }: { page: number; pageSize: number; search?: string }) => {
+        const all = Array.from(users.values());
+        const filtered = search
+          ? all.filter(
+              (u) =>
+                u.name.toLowerCase().includes(search.toLowerCase()) ||
+                u.email.toLowerCase().includes(search.toLowerCase()),
+            )
+          : all;
+        // Stable "newest first" — Map preserves insertion order, so
+        // newer entries (created later in test) come last; reverse for desc.
+        const sorted = [...filtered].reverse();
+        const offset = (page - 1) * pageSize;
+        return sorted.slice(offset, offset + pageSize);
+      },
+    ),
+    countAll: vi.fn(async () => users.size),
+    countByRole: vi.fn(
+      async (role: 'USER' | 'ADMIN') =>
+        Array.from(users.values()).filter((u) => u.role === role).length,
+    ),
     ...overrides,
   };
 };
@@ -145,6 +167,12 @@ export const createMockProductRepository = (
       const all = Array.from(products.values()).filter((p) => matches(p, filters));
       return all.length;
     }),
+    findLowStock: vi.fn(async (threshold: number) =>
+      Array.from(products.values())
+        .filter((p) => p.stock < threshold)
+        .sort((a, b) => a.stock - b.stock)
+        .slice(0, 20),
+    ),
     ...overrides,
   };
 };
@@ -277,6 +305,45 @@ export const createMockOrderRepository = (
         ordersByRef.delete(order.wompiReference);
       }
       orders.delete(id);
+    }),
+    findAllPaginated: vi.fn(
+      async (
+        filters: { status?: 'PENDING' | 'PAID' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'FAILED' },
+        pagination: { page: number; pageSize: number },
+      ) => {
+        const all = Array.from(orders.values()).filter((o) => matches(o, filters));
+        const sorted = [...all].sort((a, b) => {
+          const ta = a.createdAt?.getTime() ?? 0;
+          const tb = b.createdAt?.getTime() ?? 0;
+          return tb - ta;
+        });
+        const offset = (pagination.page - 1) * pagination.pageSize;
+        return sorted.slice(offset, offset + pagination.pageSize);
+      },
+    ),
+    countByStatus: vi.fn(async () => {
+      const counts: Record<string, number> = {
+        PENDING: 0,
+        PAID: 0,
+        SHIPPED: 0,
+        DELIVERED: 0,
+        CANCELLED: 0,
+        FAILED: 0,
+      };
+      for (const o of Array.from(orders.values())) {
+        counts[o.status] = (counts[o.status] ?? 0) + 1;
+      }
+      return counts as Record<
+        'PENDING' | 'PAID' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'FAILED',
+        number
+      >;
+    }),
+    sumRevenuePaid: vi.fn(async () => {
+      let total = 0;
+      for (const o of Array.from(orders.values())) {
+        if (o.status === 'PAID') total += o.total;
+      }
+      return total;
     }),
     ...overrides,
   };

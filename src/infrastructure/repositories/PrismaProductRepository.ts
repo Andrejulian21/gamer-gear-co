@@ -129,4 +129,13 @@ export class PrismaProductRepository implements ProductRepository {
   async delete(id: string): Promise<void> {
     await prisma.product.delete({ where: { id } });
   }
+
+  async findLowStock(threshold: number): Promise<Product[]> {
+    const products = await prisma.product.findMany({
+      where: { stock: { lt: threshold } },
+      orderBy: { stock: 'asc' },
+      take: 20,
+    });
+    return products.map(toDomain);
+  }
 }

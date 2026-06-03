@@ -13,7 +13,22 @@ export const authConfig = {
       const isOnAuth =
         nextUrl.pathname.startsWith('/login') || nextUrl.pathname.startsWith('/register');
 
-      if (isOnAccount || isOnAdmin || isOnCart) {
+      // Admin routes require BOTH authentication AND the ADMIN role.
+      // The role is encoded in the JWT (see `jwt` callback below), so
+      // this check stays Edge-compatible — no Prisma / DB lookup.
+      // A non-admin user is bounced to /login (the same response as
+      // an unauthenticated user — we don't leak the existence of the
+      // admin area to role-less users).
+      if (isOnAdmin) {
+        if (!isLoggedIn || auth?.user?.role !== 'ADMIN') {
+          const loginUrl = new URL('/login', nextUrl);
+          loginUrl.searchParams.set('next', nextUrl.pathname + nextUrl.search);
+          return Response.redirect(loginUrl);
+        }
+        return true;
+      }
+
+      if (isOnAccount || isOnCart) {
         if (isLoggedIn) return true;
         // Bounce unauthenticated traffic to /login?next=<original path>
         // so the user lands back on the protected page after signing in.

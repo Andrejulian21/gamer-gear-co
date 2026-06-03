@@ -6,6 +6,15 @@ export interface OrderFilters {
   userId?: string;
 }
 
+export interface OrderListFilters {
+  status?: OrderStatus;
+}
+
+export interface OrderPagination {
+  page: number;
+  pageSize: number;
+}
+
 export interface OrderRepository {
   findById(id: string): Promise<Order | null>;
   findByUserId(userId: string): Promise<Order[]>;
@@ -14,4 +23,21 @@ export interface OrderRepository {
   create(orderData: CreateOrderInput): Promise<Order>;
   update(id: string, data: Partial<CreateOrderInput>): Promise<Order>;
   delete(id: string): Promise<void>;
+  /**
+   * Paginated order listing for the admin UI. The repository handles
+   * the WHERE status filter (if any) and the ORDER BY createdAt DESC.
+   */
+  findAllPaginated(filters: OrderListFilters, pagination: OrderPagination): Promise<Order[]>;
+  /**
+   * Aggregate count of orders grouped by status. The returned record
+   * always contains a key for every OrderStatus — statuses with no
+   * orders present map to 0. The caller can rely on exhaustive keys.
+   */
+  countByStatus(): Promise<Record<OrderStatus, number>>;
+  /**
+   * Sum of the `total` field for every order in PAID status. Returns
+   * 0 when no paid orders exist (rather than null). Used by the
+   * admin dashboard for the "total revenue" tile.
+   */
+  sumRevenuePaid(): Promise<number>;
 }
