@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { CreditCard, Loader2, Lock } from 'lucide-react';
+import { CreditCard, Loader2, Lock, Save } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Button } from '@/presentation/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/presentation/components/ui/card';
+import { Checkbox } from '@/presentation/components/ui/checkbox';
 import { Separator } from '@/presentation/components/ui/separator';
 import { createOrderAction } from '../actions';
 import { ShippingAddressFields } from './ShippingAddressFields';
@@ -56,6 +57,7 @@ export function CheckoutForm({ summary, defaults }: CheckoutFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [saveAddress, setSaveAddress] = useState(false);
 
   const methods = useForm<CheckoutFormValues>({
     resolver: zodResolver(SHIPPING_ADDRESS_SCHEMA),
@@ -74,7 +76,7 @@ export function CheckoutForm({ summary, defaults }: CheckoutFormProps) {
   const onSubmit = methods.handleSubmit((values) => {
     setError(null);
     startTransition(async () => {
-      const result = await createOrderAction(values);
+      const result = await createOrderAction(values, { saveAddress });
       if (!result.ok) {
         const message = messageForError(result.error);
         setError(message);
@@ -139,6 +141,25 @@ export function CheckoutForm({ summary, defaults }: CheckoutFormProps) {
               {error}
             </div>
           ) : null}
+
+          <label className="border-border/60 bg-card/30 flex cursor-pointer items-start gap-3 rounded-md border p-3 text-sm">
+            <Checkbox
+              checked={saveAddress}
+              onCheckedChange={(checked) => setSaveAddress(Boolean(checked))}
+              aria-label="Guardar esta dirección para futuras compras"
+              className="mt-0.5"
+            />
+            <span className="flex-1 text-foreground">
+              <span className="flex items-center gap-1 font-medium">
+                <Save className="h-3.5 w-3.5" aria-hidden="true" />
+                Guardar esta dirección para futuras compras
+              </span>
+              <span className="text-xs text-muted-foreground">
+                La dirección quedará asociada a tu cuenta. Se marcará como predeterminada si todavía
+                no tienes una guardada.
+              </span>
+            </span>
+          </label>
         </section>
 
         <OrderSummary items={summary.items} total={summary.total} />

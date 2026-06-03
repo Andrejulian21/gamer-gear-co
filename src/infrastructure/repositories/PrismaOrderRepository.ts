@@ -60,9 +60,12 @@ export class PrismaOrderRepository implements OrderRepository {
     return order ? toDomain(order) : null;
   }
 
-  async findByUserId(userId: string): Promise<Order[]> {
+  async findByUserId(userId: string, filters?: OrderListFilters): Promise<Order[]> {
+    const where: Prisma.OrderWhereInput = { userId };
+    if (filters?.status) where.status = filters.status;
+
     const orders = await prisma.order.findMany({
-      where: { userId },
+      where,
       include: { items: true },
       orderBy: { createdAt: 'desc' },
     });

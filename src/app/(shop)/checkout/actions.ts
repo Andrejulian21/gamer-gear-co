@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { auth } from '@/infrastructure/auth/auth';
 import { getOrderDeps } from '@/presentation/lib/order-deps';
 import { getCartDeps } from '@/presentation/lib/cart-deps';
+import { getAccountDeps } from '@/presentation/lib/account-deps';
 import { PrismaProductRepository } from '@/infrastructure/repositories/PrismaProductRepository';
 import { getTotalItems } from '@/domain/entities/Cart';
 import { formatCOP } from '@/presentation/lib/price-format';
@@ -121,6 +122,7 @@ function readWompiConfigOrNull(): {
  */
 export async function createOrderAction(
   shippingAddress: ShippingAddressInput,
+  options: { saveAddress?: boolean } = {},
 ): Promise<CreateOrderActionResult> {
   const session = await auth();
   if (!session?.user?.id) {
@@ -196,6 +198,28 @@ export async function createOrderAction(
     redirectUrl: `${wompi.redirectUrlBase.replace(/\/+$/, '')}/orders/${order.id}`,
     publicKey: wompi.publicKey,
   });
+
+  // Optional: persist the shipping address to the user's account
+  // (Phase 6 / D5). Fires regardless of payment outcome — the user
+  // opted in on the form and "save" is a per-submit commitment, not
+  // a per-payment one. We never stomp an existing default; the new
+  // address becomes default only when the user has no other address.
+  // Errors here are non-fatal: the redirect to Wompi is already built
+  // and the order already exists.
+  if (options.saveAddress) {
+    try {
+      const { addAddress, listUserAddresses } = getAccountDeps();
+      const existing = await listUserAddresses({ userId: session.user.id });
+      await addAddress({
+        userId: session.user.id,
+        ...shippingForDomain,
+        isDefault: existing.length === 0,
+      });
+    } catch {
+      // Swallow — saving the address is best-effort. The order and
+      // checkout URL are the primary outputs.
+    }
+  }
 
   return { ok: true, url: checkoutUrl, orderId: order.id };
 }

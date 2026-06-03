@@ -269,8 +269,16 @@ export const createMockOrderRepository = (
 
   return {
     findById: vi.fn(async (id: string) => orders.get(id) ?? null),
-    findByUserId: vi.fn(async (userId: string) =>
-      Array.from(orders.values()).filter((o) => o.userId === userId),
+    findByUserId: vi.fn(
+      async (
+        userId: string,
+        filters?: {
+          status?: 'PENDING' | 'PAID' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'FAILED';
+        },
+      ) =>
+        Array.from(orders.values()).filter(
+          (o) => o.userId === userId && (!filters?.status || o.status === filters.status),
+        ),
     ),
     findAll: vi.fn(async (filters: OrderFilters = {}) =>
       Array.from(orders.values()).filter((o) => matches(o, filters)),

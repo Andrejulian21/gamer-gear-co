@@ -17,7 +17,12 @@ export interface OrderPagination {
 
 export interface OrderRepository {
   findById(id: string): Promise<Order | null>;
-  findByUserId(userId: string): Promise<Order[]>;
+  /**
+   * List all orders for a user, optionally narrowed to a single
+   * status. Default ordering is repository-defined (Prisma: createdAt desc;
+   * mock: insertion order). The use case applies the final desc sort.
+   */
+  findByUserId(userId: string, filters?: OrderListFilters): Promise<Order[]>;
   findAll(filters?: OrderFilters): Promise<Order[]>;
   findByWompiReference(reference: string): Promise<Order | null>;
   create(orderData: CreateOrderInput): Promise<Order>;
