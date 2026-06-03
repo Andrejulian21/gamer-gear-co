@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import { Unbounded } from 'next/font/google';
 import { Toaster } from 'sonner';
+import { SkipToContent } from '@/presentation/components/skip-to-content';
 import './globals.css';
 
 const geistSans = localFont({
@@ -60,7 +61,22 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
-        {children}
+        <SkipToContent />
+        {/*
+         * The skip-to-content link targets #main-content. We use a
+         * <div> (not <main>) on purpose: the (shop) and (admin) route
+         * layouts already render their own <main> elements, and
+         * nesting <main> is invalid HTML. A plain div with id +
+         * tabIndex gives us the same anchor + focus target without
+         * the nesting issue.
+         *
+         * tabIndex={-1} makes the element programmatically focusable
+         * (so the skip-link's anchor jump actually moves focus) but
+         * keeps it out of the natural tab order.
+         */}
+        <div id="main-content" tabIndex={-1} className="outline-none">
+          {children}
+        </div>
         <Toaster
           position="top-right"
           theme="dark"
