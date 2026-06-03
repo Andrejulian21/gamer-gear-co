@@ -33,7 +33,7 @@ export const brands: BrandSeed[] = [
   {
     name: 'Razer',
     slug: 'razer',
-    logo: 'https://placehold.co/200x200/000000/00FF00?text=RAZER',
+    logo: '/logos/razer.svg',
   },
   {
     name: 'Logitech G',
@@ -48,12 +48,12 @@ export const brands: BrandSeed[] = [
   {
     name: 'HyperX',
     slug: 'hyperx',
-    logo: 'https://placehold.co/200x200/D32F2F/FFFFFF?text=HYPERX',
+    logo: '/logos/hyperx.png',
   },
   {
     name: 'Redragon',
     slug: 'redragon',
-    logo: 'https://placehold.co/200x200/FF6B00/FFFFFF?text=REDRAGON',
+    logo: '/logos/redragon.png',
   },
 ];
 
@@ -68,12 +68,23 @@ export const categories: CategorySeed[] = [
 const productImage = (id: string): string =>
   `https://images.unsplash.com/${id}?w=600&h=600&fit=crop&auto=format&q=80`;
 
-// Mouse category
+// Mouse category — all 4 isolated mouse shots verified
+// 1615663245857 = black Logitech-style mouse, side profile, black bg
+// 1605773527852 = black Logitech G, top-down, light blue bg, red G logo
+// 1629429408209 = Redragon RGB, pink/green underglow
+// 1628832307345 = black mouse, pink/purple RGB underglow
+// NOTE: 1696710257827 was a full battlestation setup (REJECTED)
 const MOUSE_DEATHADDER = 'photo-1615663245857-ac93bb7c39e7';
 const MOUSE_BASILISK = 'photo-1605773527852-c546a8584ea3';
 const MOUSE_SUPERLIGHT = 'photo-1629429408209-1f912961dbd8';
-const MOUSE_G502 = 'photo-1696710257827-75e2e5954059';
+const MOUSE_G502 = 'photo-1628832307345-7404b47f1751';
 const MOUSE_DARK_CORE = 'photo-1628832307345-7404b47f1751';
+
+// Mousepad category — only 2 isolated shots confirmed on Unsplash
+// 1769991442675 = black gaming mousepad corner, wood desk, no other products
+// 1653179767373 = JINCOMSO ergonomic mousepad with raised wrist rest, white bg
+const MOUSEPAD_BLACK = 'photo-1769991442675-02ef3361883a';
+const MOUSEPAD_ERGONOMIC = 'photo-1653179767373-8cba51333cfe';
 
 export const products: ProductSeed[] = [
   // ----- MOUSE (8) -----
@@ -242,7 +253,7 @@ export const products: ProductSeed[] = [
       'Teclado mecanico 60% con switches Cherry MX Red y perillas de control de brillo y velocidad. Cable USB-C desmontable y tecnologia de hiper-procesamiento de 8.000 Hz para latencia minima.',
     price: '499000.00',
     stock: 16,
-    images: [productImage('photo-1696710257827-75e2e5954059')],
+    images: [productImage('photo-1626958390943-a70309376444')],
     featured: false,
     brandSlug: 'corsair',
     categorySlug: 'teclados',
@@ -352,7 +363,7 @@ export const products: ProductSeed[] = [
       'Auriculares gaming con sonido envolvente 7.1 virtual, drivers de neodimio de 53 mm y estructura de aluminio. Microfono con cancelacion de ruido, almohadillas de espuma viscoelastica y caja de control USB incluida.',
     price: '349000.00',
     stock: 24,
-    images: [productImage('photo-1628501899963-43bb8e2423e1')],
+    images: [productImage('photo-1560419015-7c427e8ae5ba')],
     featured: true,
     brandSlug: 'hyperx',
     categorySlug: 'auriculares',
@@ -364,7 +375,7 @@ export const products: ProductSeed[] = [
       'Auriculares gaming con sonido envolvente virtual 7.1, drivers de neodimio de 53 mm y microfono con cancelacion de ruido. Almohadillas de proteina suaves con memoria y diadema con suspension automatica.',
     price: '219000.00',
     stock: 26,
-    images: [productImage('photo-1566055972289-c52022ae23b7')],
+    images: [productImage('photo-1610041321327-b794c052db27')],
     featured: false,
     brandSlug: 'redragon',
     categorySlug: 'auriculares',
@@ -378,7 +389,7 @@ export const products: ProductSeed[] = [
       'Mousepad extendido de 920x294 mm con superficie de tela microtexturizada optimizada para sensores opticos y laser. Base de goma antideslizante y bordes cosidos anti-desgaste para maxima durabilidad.',
     price: '149000.00',
     stock: 30,
-    images: [productImage('photo-1585620385456-4759f9b5c7d9')],
+    images: [productImage(MOUSEPAD_BLACK)],
     featured: true,
     brandSlug: 'razer',
     categorySlug: 'mousepads',
@@ -390,7 +401,7 @@ export const products: ProductSeed[] = [
       'Mousepad rigido de baja friccion con superficie de polimero de alta densidad. Ideal para jugadores que prefieren un desplazamiento rapido y consistente, con base de goma estable sobre cualquier superficie.',
     price: '99000.00',
     stock: 27,
-    images: [productImage('photo-1636036769389-343bb250f013')],
+    images: [productImage(MOUSEPAD_ERGONOMIC)],
     featured: false,
     brandSlug: 'logitech-g',
     categorySlug: 'mousepads',
@@ -402,7 +413,7 @@ export const products: ProductSeed[] = [
       'Mousepad extendido de 900x400 mm con superficie de tela de microfibra tejida de alta densidad. Base de goma antideslizante y costuras reforzadas con grosor de 5 mm para soporte de muneca confortable.',
     price: '119000.00',
     stock: 23,
-    images: [productImage('photo-1587749091716-f7b291a87f87')],
+    images: [productImage(MOUSEPAD_BLACK)],
     featured: false,
     brandSlug: 'corsair',
     categorySlug: 'mousepads',
@@ -414,7 +425,7 @@ export const products: ProductSeed[] = [
       'Mousepad grande de tela con superficie cosida anti-deshilachado y base de goma natural texturizada. Superficie uniforme optimizada para maxima precision de seguimiento con sensores opticos.',
     price: '99000.00',
     stock: 32,
-    images: [productImage('photo-1616071358409-ef30a44a90bb')],
+    images: [productImage(MOUSEPAD_ERGONOMIC)],
     featured: false,
     brandSlug: 'hyperx',
     categorySlug: 'mousepads',
@@ -426,7 +437,7 @@ export const products: ProductSeed[] = [
       'Mousepad XXL de 900x400 mm con superficie de tela impermeable y base de goma antideslizante. Bordes reforzados cosidos para evitar el despegado y un grosor de 4 mm para sesiones largas y comodos.',
     price: '89000.00',
     stock: 38,
-    images: [productImage('photo-1636036758527-266adfee3fcf')],
+    images: [productImage(MOUSEPAD_BLACK)],
     featured: false,
     brandSlug: 'redragon',
     categorySlug: 'mousepads',
@@ -438,7 +449,7 @@ export const products: ProductSeed[] = [
       'Mousepad doble cara con una superficie de control Speed y otra Control. Base de doble capa con zonas intercambiables para ajuste ergonomico y agarres laterales para un transporte mas comodo.',
     price: '89000.00',
     stock: 20,
-    images: [productImage('photo-1589401806207-2381455bce76')],
+    images: [productImage(MOUSEPAD_ERGONOMIC)],
     featured: false,
     brandSlug: 'razer',
     categorySlug: 'mousepads',
