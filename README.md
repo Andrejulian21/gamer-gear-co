@@ -133,19 +133,67 @@ Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
 ## Estado del proyecto
 
-Este es un **proyecto de portafolio en desarrollo activo**. Fase actual: **Phase 1 — DB + Auth** ✅
+Este es un **proyecto de portafolio en desarrollo activo**. Todas las fases planeadas están completas (0-7). Phase 8 (deploy en Vercel) está lista para ejecutar — ver `docs/VERIFICACION.md` para la guía de despliegue.
 
 ### Roadmap
 
 - [x] **Phase 0** — Setup del proyecto, tooling, CI, README
 - [x] **Phase 1** — Schema de base de datos, NextAuth, middleware por roles
-- [ ] **Phase 2** — Catálogo público (navegación, filtros, búsqueda)
-- [ ] **Phase 3** — Carrito persistente con Zustand
-- [ ] **Phase 4** — Checkout + integración de pagos Wompi + webhooks
-- [ ] **Phase 5** — Panel admin (CRUD productos, gestión de órdenes)
-- [ ] **Phase 6** — Perfil de usuario, direcciones, historial de órdenes
-- [ ] **Phase 7** — Pulido, SEO, screenshots, Lighthouse 90+
-- [ ] **Phase 8** — Deploy en Vercel, configurar Wompi en producción
+- [x] **Phase 2** — Catálogo público (30 productos, 5 marcas, 4 categorías)
+- [x] **Phase 3** — Carrito persistente con auth-only y useOptimistic
+- [x] **Phase 4** — Checkout + Wompi (PSE, Nequi, Bancolombia, tarjetas) + webhooks firmados
+- [x] **Phase 5** — Panel admin (CRUD productos/marcas/categorías/órdenes/usuarios + Vercel Blob)
+- [x] **Phase 6** — Perfil de usuario, direcciones, historial de órdenes con filtro de status
+- [x] **Phase 7** — Pulido: loading/error/404 boundaries + skip-to-content (a11y)
+- [ ] **Phase 8** — Deploy en Vercel (configurar env vars, smoke test en producción)
+
+**Tests**: 211 unit + 29 E2E passing (1 E2E skipped — necesita `WOMPI_REDIRECT_URL`).
+
+## Despliegue en Vercel
+
+### Variables de entorno requeridas
+
+```bash
+# Base de datos
+DATABASE_URL="postgresql://..."   # Neon / Supabase / Vercel Postgres
+
+# NextAuth
+AUTH_SECRET="<openssl rand -base64 32>"
+AUTH_TRUST_HOST=true
+NEXT_PUBLIC_APP_URL="https://tu-dominio.vercel.app"
+NEXTAUTH_URL="https://tu-dominio.vercel.app"
+
+# Wompi (sandbox para empezar, producción después)
+NEXT_PUBLIC_WOMPI_PUBLIC_KEY="<tu_public_key>"
+WOMPI_PRIVATE_KEY="<tu_private_key>"
+WOMPI_EVENTS_SECRET="<tu_events_secret>"
+WOMPI_REDIRECT_URL="https://tu-dominio.vercel.app/orders"
+WOMPI_ENV="sandbox"             # o "production"
+
+# Vercel Blob (para upload de imágenes en admin)
+BLOB_READ_WRITE_TOKEN="<vercel_blob_token>"
+```
+
+### Pasos
+
+1. Conectar el repo en [vercel.com/new](https://vercel.com/new)
+2. Configurar las variables de entorno arriba
+3. En **Build & Development Settings**:
+   - Build Command: dejar por defecto (`next build`)
+   - Install Command: `pnpm install`
+4. Agregar un **Postgres** (Neon, Supabase, o Vercel Postgres)
+5. Después del primer deploy, correr las migraciones:
+   ```bash
+   # Local con la DATABASE_URL de producción
+   pnpm prisma migrate deploy
+   pnpm prisma:seed    # opcional, crea 30 productos + admin
+   ```
+6. Configurar el webhook en Wompi dashboard → `https://tu-dominio.vercel.app/api/wompi/webhook`
+7. Smoke test: registrar un usuario, agregar al carrito, checkout con `4242 4242 4242 4242`
+
+> Para Vercel Blob: crear un store en el dashboard de Vercel → Storage → Create Database → Blob.
+
+Ver `docs/VERIFICACION.md` para troubleshooting y configuración detallada.
 
 ## Licencia
 

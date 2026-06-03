@@ -1,24 +1,42 @@
 # VERIFICACIÓN — gamer-gear-co
 
-> Lista de comprobación para validar el proyecto cuando despiertes.
-> Última actualización: 2026-06-03 (Phase 4 integrado)
+> **Este es tu documento de "qué verificar al despertar".** Todo el proyecto (Phases 0-7) está listo. Solo falta deploy (Phase 8).
+> Última actualización: 2026-06-03 (post Phase 7)
 
-## TL;DR
+## TL;DR — Estado de fases
 
-| Fase | Estado | Commit final | Tests | Notas |
-|------|--------|--------------|-------|-------|
-| 1. Auth + users | ✅ shipped | `a6c7b17`-era | 62 → 110 | NextAuth v5 Credentials + roles |
-| 2. Catálogo | ✅ shipped | `db37e9e` | 110 | 30 productos, imágenes reales Unsplash, 3 logos reales |
-| 3. Cart | ✅ shipped | `db37e9e` | 110 | Cart auth-only, useOptimistic, badge sync |
-| 4. Checkout + Wompi | ✅ shipped | `21da855` | 110 unit + 9 E2E | Webhook firmado, polling de status, FAILED status |
-| 5. Admin | ✅ shipped | `88da967` | 179 unit + 18 E2E | Layout, dashboard, products/brands/categories/orders/users CRUD, upload API, redirect-loop fix |
-| 6. Profile | 🔲 pendiente | — | — | Planner corriendo |
-| 7. Polish | 🔲 pendiente | — | — | |
-| 8. Deploy | 🔲 pendiente | — | — | |
+| Fase | Descripción | Estado | Commit | Tests | Notas |
+|------|-------------|--------|--------|-------|-------|
+| 0 | Setup + tooling | ✅ shipped | — | — | Next 14 + pnpm + Prisma 7 + NextAuth v5 |
+| 1 | Auth + users | ✅ shipped | `a6c7b17` | 62→110 | NextAuth Credentials + roles USER/ADMIN |
+| 2 | Catálogo | ✅ shipped | `db37e9e` | 110 | 30 productos, imágenes reales Unsplash |
+| 3 | Cart | ✅ shipped | `db37e9e` | 110 | Cart auth-only, useOptimistic, badge sync |
+| 4 | Checkout + Wompi | ✅ shipped | `21da855` | 110 unit + 9 E2E | Webhook firmado, polling, FAILED status |
+| 5 | Admin | ✅ shipped | `88da967` | 179 unit + 18 E2E | Layout, dashboard, CRUD, upload, redirect-loop fix |
+| 6 | Profile + addresses | ✅ shipped | `37fdd01` | 211 unit + 30 E2E | /account, /account/addresses, orders status filter, save-on-checkout |
+| 7 | Polish | ✅ shipped | `c2d5006` | 211 unit + 30 E2E | Loading/error/404 boundaries + skip-to-content (a11y) |
+| 8 | Deploy | 🔲 pendiente | — | — | Vercel config + env vars (ver "Deploy" más abajo) |
+
+**Tests totales**: 211 unit (vitest) + 29 E2E passing + 1 skipped (Wompi UI happy path).
 
 ---
 
-## 1. Cómo correr el proyecto
+## 1. Verificación rápida al despertar (5 minutos)
+
+```bash
+cd gamer-gear-co
+pnpm install                      # por si acaso
+pnpm typecheck                    # debe dar 0 errores
+pnpm test                         # debe dar 211/211 passing
+pnpm lint                         # debe dar 0 warnings
+pnpm test:e2e                     # debe dar 29 passed, 1 skipped
+```
+
+Si TODO pasa, el código está bien. Cualquier fallo es regresión — `git log` para ver qué cambió.
+
+---
+
+## 2. Cómo correr el proyecto localmente
 
 ```bash
 # Asume Node 20+, pnpm, PostgreSQL 16 corriendo en localhost:5432
@@ -28,7 +46,7 @@
 cd gamer-gear-co
 pnpm install
 pnpm prisma migrate deploy
-pnpm prisma:seed
+pnpm prisma:seed                  # opcional, crea 30 productos + admin
 pnpm dev
 ```
 
@@ -47,7 +65,7 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 NEXT_PUBLIC_WOMPI_PUBLIC_KEY="<tu_public_key_sandbox>"
 WOMPI_PRIVATE_KEY="<tu_private_key_sandbox>"
 WOMPI_EVENTS_SECRET="<tu_events_secret_sandbox>"
-WOMPI_REDIRECT_URL="http://localhost:3000/orders"   # base; el id se concatena
+WOMPI_REDIRECT_URL="http://localhost:3000/orders"
 WOMPI_ENV="sandbox"
 
 # Opcionales (Vercel Blob para imágenes en admin — Phase 5)
@@ -57,28 +75,7 @@ BLOB_READ_WRITE_TOKEN="<vercel_blob_token>"
 DATABASE_URL_TEST="postgresql://postgres:postgres@localhost:5432/gamerstore_test?schema=public"
 ```
 
-> ⚠️ Phase 4 dejó 1 test E2E **skipped** porque `WOMPI_REDIRECT_URL` no estaba en el `.env` del dev que corrió gamma. Agrega las claves de sandbox para activarlo.
-
----
-
-## 2. Tests
-
-```bash
-pnpm typecheck           # 0 errores
-pnpm test                # 110/110 unit + integration (vitest)
-pnpm test:e2e            # 9/14 E2E (Playwright) — ver issues abajo
-```
-
-### Cobertura por área
-
-| Área | Tests | Estilo |
-|------|-------|--------|
-| Domain (Cart, Orders, Products, Brands, Categories, Users) | ~90 | TDD-strict, mocks |
-| Infrastructure (Wompi, verify-webhook) | ~15 | TDD-strict |
-| E2E happy path checkout | 1 ✅ + 1 ⏭️ | Playwright + sandbox mock |
-| E2E declined card | 3 ✅ | Signed webhook forging |
-| E2E auth redirect | 1 ✅ | |
-| E2E cart (Phase 3) | 6 ✅ + 3 ❌ | **Issues pre-existentes — ver §5** |
+> ⚠️ El archivo `.env` está encriptado con dotenvx. Usa `dotenvx get` o el dashboard de dotenvx para ver/editar valores. O exporta las variables manualmente antes de los comandos.
 
 ---
 
@@ -94,33 +91,37 @@ password: Admin123!
 role:     ADMIN
 ```
 
-Seed crea 5 marcas (Razer, Logitech G, Corsair, HyperX, Redragon), 4 categorías (Mouse, Teclado, Headset, Mousepad), 30 productos con imágenes reales de Unsplash.
+Seed crea: 5 marcas (Razer, Logitech G, Corsair, HyperX, Redragon), 4 categorías (Mouse, Teclado, Headset, Mousepad), 30 productos con imágenes reales de Unsplash.
 
 ---
 
-## 4. Flujos a verificar manualmente (smoke test)
+## 4. Smoke test manual (15 minutos)
 
 ### Cliente
 
 1. **Registro/Login** → `http://localhost:3000/register`, `http://localhost:3000/login`
 2. **Catálogo** → `/products` con filtros por marca, categoría, precio
-3. **Detalle de producto** → `/products/razer-deathadder-v3-pro` (o cualquier slug del seed)
-4. **Agregar al carrito** → stepper de cantidad, toast de éxito, badge en navbar se incrementa
+3. **Detalle de producto** → `/products/razer-deathadder-v3-pro`
+4. **Agregar al carrito** → stepper de cantidad, toast, badge se incrementa
 5. **Carrito** → `/cart` con summary, "Proceder al pago" CTA
-6. **Checkout** → `/checkout` (requiere auth), form con 7 campos
+6. **Checkout** → `/checkout` (requiere auth), form 7 campos, checkbox "Guardar esta dirección"
 7. **Wompi sandbox** → submit redirige a `https://sandbox.wompi.co/...`
-   - Tarjeta de prueba aprobada: `4242 4242 4242 4242`
-   - Tarjeta de prueba declinada: `4111 1111 1111 1111`
-8. **Volver de Wompi** → `/orders/[id]` con status PENDING; el poller refresca cada 5s hasta 60s; el webhook real actualiza a PAID o FAILED
-9. **Mis pedidos** → `/orders` con lista de pedidos del usuario
+   - Tarjeta aprobada: `4242 4242 4242 4242`
+   - Tarjeta declinada: `4111 1111 1111 1111`
+8. **Volver de Wompi** → `/orders/[id]` con status PENDING; el poller refresca cada 5s hasta 60s
+9. **Mis pedidos** → `/orders` con **filtro por status** (Todos/Pendientes/Pagados/Enviados/Entregados/Fallidos/Cancelados)
+10. **Mi cuenta** → `/account` con profile form, password form, direcciones, pedidos recientes
+11. **Direcciones** → `/account/addresses` con CRUD (agregar/editar/eliminar/marcar predeterminada)
+12. **Mobile** → abrir en DevTools mobile viewport (375px) — el layout se adapta
 
-### Admin (Phase 5 — pendiente)
+### Admin (login con admin@gamerstore.co)
 
-10. **Login como admin** → `admin@gamerstore.co`
-11. **`/admin`** → dashboard con stats
-12. **`/admin/products`** → CRUD de productos con upload de imágenes a Vercel Blob
-13. **`/admin/orders`** → ver todos los pedidos, actualizar status (SHIPPED, DELIVERED, CANCELLED)
-14. **`/admin/users`** → ver usuarios, promover/degradar (con protección anti self-demote del último admin)
+13. **Dashboard** → `/admin` con stats (total productos, órdenes, ingresos, usuarios)
+14. **Productos** → `/admin/products` con CRUD, upload de imágenes a Vercel Blob
+15. **Marcas** → `/admin/brands` con CRUD
+16. **Categorías** → `/admin/categories` con CRUD
+17. **Órdenes** → `/admin/orders` con filtro por status, ver detalle, actualizar status (SHIPPED, DELIVERED, CANCELLED)
+18. **Usuarios** → `/admin/users` con búsqueda, ver detalle, promover/degradar (protección anti self-demote del último admin)
 
 ### Webhook (manual con ngrok)
 
@@ -140,33 +141,28 @@ ngrok http 3000
 
 ---
 
-## 5. Issues conocidos (requieren tu atención)
+## 5. Issues conocidos
 
-### ❌ 3 E2E tests pre-existentes fallando (Phase 3)
-
-Estos tests fallaban ANTES de Phase 4. Beta no los tocó. Funcionalidad del cart funciona correctamente — son bugs en los tests mismos:
-
-| # | Test | Causa | Fix sugerido |
-|---|------|-------|--------------|
-| 1 | `cart.spec.ts:19` "logged-in user can add an item and the cart badge increments" | El test aserta `getByRole('alert')` count = 0 después de agregar. Pero `AddToCartButton` ahora muestra `toast.success('Producto agregado al carrito')` que tiene role alert. El test fue escrito antes del toast. | Cambiar a `toHaveCount(1)` (success toast esperado) o filtrar por `[data-sonner-toast][data-type="error"]` |
-| 2 | `cart.spec.ts:39` "logged-in user can update quantity and remove item from the cart page" | State pollution entre tests (DB de test compartida sin cleanup). El test empieza con qty=5 porque tests anteriores dejaron el carrito con items, no con qty=1. | Agregar `test.beforeEach` con `cartRepository.clear(userId)` o usar `test.describe.configure({ mode: 'serial' })` + cleanup |
-| 3 | `cart.spec.ts:73` "quantity input respects the maxQuantity (stock) cap" | El test busca `getByLabel(/Cantidad:/)` (con dos puntos). El `AddToCartButton` define `aria-label="Cantidad"` (sin dos puntos). | Cambiar regex a `/^Cantidad$/` o `getByLabel('Cantidad', { exact: true })` |
-
-### ⏭️ 1 E2E test skipped
+### 1 E2E test skipped (esperado, no es bug)
 
 - `tests/e2e/checkout-happy-path.spec.ts` subtest "UI happy path" auto-skips si falta `WOMPI_REDIRECT_URL` en `.env`. El subtest crítico ("webhook APPROVED con verificación de firma") **sí corre** y pasa.
 
-### ⚠️ UI gaps conocidos de Phase 4
+### Decisiones de Phase 4 que conviene saber
 
-- No hay "guardar dirección para la próxima" (el modelo `Address` existe en schema, Phase 6 lo levantará)
-- `OrderPoller` agota el presupuesto de 60s y muestra "te enviaremos un email" — el éxito por toast puede perderse si el usuario navega fuera en esos 60s
-- `Order detail` hidrata items vía `productRepo.findMany({ limit: 200 })` — no es un join nativo. Con 200 productos funciona, pero en escala cambiar `PrismaOrderRepository` para hacer include de items.product
-
-### ⚠️ Decisiones de Phase 4 que conviene saber
-
-- **Stock se decrementa al PAID**, no al PENDING. Trade-off: hay una ventana de oversell bajo concurrencia extrema. Con 30 productos / tráfico bajo, aceptable. Si cambia el tráfico, mover a PENDING con TTL de 15 min.
+- **Stock se decrementa al PAID**, no al PENDING. Trade-off: ventana de oversell bajo concurrencia extrema. Con 30 productos / tráfico bajo, aceptable. Si cambia el tráfico, mover a PENDING con TTL de 15 min.
 - **Cart NO se limpia en FAILED**. Si el cliente quiere reintentar, sus items siguen ahí. Decisión de UX.
 - **GetOrder** lanza `OrderNotFoundError` (no 403) para no-owners — no leakeamos existencia de pedidos ajenos.
+
+### Limitaciones de Phase 6
+
+- /account/not-found.tsx existe pero raramente se usa (la mayoría de subpaths sin auth redirigen a /login).
+- El password change no invalida otras sesiones del mismo usuario (no es crítico para el caso de uso).
+
+### Limitaciones de Phase 7 (Polish)
+
+- No hay mobile menu (los links de navbar están hidden en mobile, no hay hamburger). Decidido out-of-scope — un futuro UX pass lo agregará.
+- No hay favicon configurado explícitamente (usa el default de Next.js).
+- No hay sitemap.xml o robots.txt (SEO básico post-deploy).
 
 ---
 
@@ -175,26 +171,27 @@ Estos tests fallaban ANTES de Phase 4. Beta no los tocó. Funcionalidad del cart
 ```
 src/
   domain/                  # Pure TypeScript, NO Prisma imports
-    entities/              # zod schemas + factories
-    use-cases/             # cart/, orders/, admin/
-    repositories/          # INTERFACES
-    errors/                # Domain errors (Cart, Order, Admin, User)
+    entities/              # zod schemas + factories (Address, Brand, CartItem, ...)
+    use-cases/             # auth/, products/, cart/, orders/, admin/, addresses/, account/
+    repositories/          # INTERFACES (User, Product, Cart, Order, Address, Brand, Category)
+    errors/                # Domain errors (Cart, Order, Admin, User, Address, Account)
     __tests__/mocks.ts     # createMockXxxRepository
   infrastructure/
     db/prisma.ts           # Prisma client w/ @prisma/adapter-pg
     repositories/          # PrismaXxxRepository implements XxxRepository
-    auth/                  # NextAuth v5 config + middleware role check
-    payments/              # Wompi + verify-webhook
+    auth/                  # NextAuth v5 config + password-hasher + middleware role check
+    payments/              # Wompi + verify-webhook + webhook handler
     uploads/               # Vercel Blob wrapper
   presentation/
     components/ui/         # shadcn primitives
-    components/            # app-level components
-    hooks/                 # useCartCount etc.
-    lib/                   # {cart,order,admin}-deps.ts factories
+    components/            # app-level (navbar, footer, product-card, empty-state, ...)
+    hooks/                 # useCartCount
+    lib/                   # {cart,order,admin,account}-deps.ts factories
   app/
     (auth)/login/, (auth)/register/
-    (shop)/                # products, cart, checkout, orders
+    (shop)/                # products, brands, cart, checkout, orders
     (admin)/admin/         # dashboard, products, brands, categories, orders, users
+    account/               # profile, addresses
     api/wompi/webhook/     # App Router POST handler
     api/admin/upload/      # App Router POST handler (admin-only)
 ```
@@ -203,14 +200,31 @@ src/
 
 ---
 
-## 7. Próximos pasos (después de Phase 8)
+## 7. Deploy en Vercel (Phase 8 — pendiente)
 
-Una vez deployado:
-- **Email confirmation post-Phase 4**: hookear `resend` (ya en package.json) para enviar email de confirmación cuando order pasa a PAID
-- **Address book UI** (Phase 6 la levantará): una vez activa, retro-fittear la fase 4 para ofrecer "usar dirección guardada" en /checkout
-- **Refunds**: requiere `wompi.transactions.refund` y nuevo status `REFUNDED`
-- **Inventory holds**: si el tráfico sube, cambiar stock-at-PENDING con TTL
-- **Nequi/PSE/Bancolombia**: agregar en Wompi Web Checkout son 3 integraciones, una por método
+### Pasos
+
+1. Crear un nuevo proyecto en [vercel.com/new](https://vercel.com/new) desde este repo
+2. Configurar las variables de entorno (ver §2)
+3. **Build & Development Settings**:
+   - Build Command: dejar por defecto (`next build`)
+   - Install Command: `pnpm install`
+4. Crear una base de datos Postgres (Neon free tier, Supabase, o Vercel Postgres)
+5. **Post-deploy**: correr migraciones localmente apuntando a la DB de producción:
+   ```bash
+   DATABASE_URL="<production_db_url>" pnpm prisma migrate deploy
+   DATABASE_URL="<production_db_url>" pnpm prisma:seed    # opcional
+   ```
+6. Crear un **Vercel Blob store** en el dashboard → Storage → Create Database → Blob
+7. Configurar el **webhook en Wompi** dashboard → `https://tu-dominio.vercel.app/api/wompi/webhook` (events: transaction.updated)
+8. **Smoke test** en producción con tarjeta de sandbox (`4242 4242 4242 4242`)
+
+### Post-deploy
+
+- **Email confirmation**: hookear `resend` (ya en package.json) para enviar email cuando order pasa a PAID
+- **Real Wompi keys**: cambiar `WOMPI_ENV` de "sandbox" a "production" y actualizar las llaves
+- **Dominio custom**: configurar en Vercel → Settings → Domains
+- **Analytics**: opcional, Vercel Analytics está disponible out-of-the-box
 
 ---
 
@@ -220,6 +234,7 @@ Una vez deployado:
 # DB
 pnpm prisma:studio        # UI en http://localhost:5555
 pnpm prisma migrate dev   # nueva migración (dev)
+pnpm prisma migrate deploy # aplicar migraciones pendientes (prod)
 pnpm prisma:seed          # re-seed (idempotente: actualiza imágenes)
 
 # Tests
@@ -233,4 +248,18 @@ pnpm lint
 pnpm format
 ```
 
-> ❌ No corras `pnpm build` — convención del proyecto. El typecheck + tests son las gates.
+> ❌ No corras `pnpm build` localmente — convención del proyecto. El typecheck + tests son las gates.
+
+---
+
+## 9. Próximos pasos después de Phase 8
+
+Una vez deployado y validado en producción:
+- **Email confirmation**: hookear `resend` para enviar email cuando order pasa a PAID
+- **Address book UI** retro-fit: agregar "usar dirección guardada" en /checkout (ya existe el modelo + UI en /account/addresses, solo falta wirear el checkout)
+- **Refunds**: requiere `wompi.transactions.refund` y nuevo status `REFUNDED`
+- **Inventory holds**: si el tráfico sube, cambiar stock-at-PENDING con TTL
+- **Nequi/PSE/Bancolombia**: agregar en Wompi Web Checkout son 3 integraciones, una por método
+- **Mobile menu** para navbar (UX pass)
+- **Favicon + sitemap.xml + robots.txt** (SEO básico)
+- **Lighthouse 90+ audit** y aplicar optimizaciones (next/image, prefetch hints, etc.)
