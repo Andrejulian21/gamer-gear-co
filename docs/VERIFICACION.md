@@ -11,8 +11,8 @@
 | 2. Catálogo | ✅ shipped | `db37e9e` | 110 | 30 productos, imágenes reales Unsplash, 3 logos reales |
 | 3. Cart | ✅ shipped | `db37e9e` | 110 | Cart auth-only, useOptimistic, badge sync |
 | 4. Checkout + Wompi | ✅ shipped | `21da855` | 110 unit + 9 E2E | Webhook firmado, polling de status, FAILED status |
-| 5. Admin | 🔲 pendiente | — | — | Planner corriendo |
-| 6. Profile | 🔲 pendiente | — | — | |
+| 5. Admin | ✅ shipped | `88da967` | 179 unit + 18 E2E | Layout, dashboard, products/brands/categories/orders/users CRUD, upload API, redirect-loop fix |
+| 6. Profile | 🔲 pendiente | — | — | Planner corriendo |
 | 7. Polish | 🔲 pendiente | — | — | |
 | 8. Deploy | 🔲 pendiente | — | — | |
 
@@ -176,25 +176,27 @@ Estos tests fallaban ANTES de Phase 4. Beta no los tocó. Funcionalidad del cart
 src/
   domain/                  # Pure TypeScript, NO Prisma imports
     entities/              # zod schemas + factories
-    use-cases/             # cart/, orders/
+    use-cases/             # cart/, orders/, admin/
     repositories/          # INTERFACES
-    errors/                # Domain errors
+    errors/                # Domain errors (Cart, Order, Admin, User)
     __tests__/mocks.ts     # createMockXxxRepository
   infrastructure/
     db/prisma.ts           # Prisma client w/ @prisma/adapter-pg
     repositories/          # PrismaXxxRepository implements XxxRepository
-    auth/                  # NextAuth v5 config
+    auth/                  # NextAuth v5 config + middleware role check
     payments/              # Wompi + verify-webhook
+    uploads/               # Vercel Blob wrapper
   presentation/
     components/ui/         # shadcn primitives
     components/            # app-level components
     hooks/                 # useCartCount etc.
-    lib/                   # {cart,order,...}-deps.ts factories
+    lib/                   # {cart,order,admin}-deps.ts factories
   app/
     (auth)/login/, (auth)/register/
     (shop)/                # products, cart, checkout, orders
-    (admin)/admin/         # Phase 5+
+    (admin)/admin/         # dashboard, products, brands, categories, orders, users
     api/wompi/webhook/     # App Router POST handler
+    api/admin/upload/      # App Router POST handler (admin-only)
 ```
 
 **Clean Architecture**: domain ← infrastructure ← presentation. Domain NO importa de infrastructure ni presentation.
