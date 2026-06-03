@@ -7,6 +7,8 @@ import { PrismaProductRepository } from '@/infrastructure/repositories/PrismaPro
 import { PrismaBrandRepository } from '@/infrastructure/repositories/PrismaBrandRepository';
 import { PrismaCategoryRepository } from '@/infrastructure/repositories/PrismaCategoryRepository';
 import { getProductBySlug } from '@/domain/use-cases/products/GetProductBySlug';
+import { auth } from '@/infrastructure/auth/auth';
+import { prisma } from '@/infrastructure/db/prisma';
 import { formatCOP } from '@/presentation/lib/price-format';
 import { Button } from '@/presentation/components/ui/button';
 import { Badge } from '@/presentation/components/ui/badge';
@@ -53,6 +55,16 @@ export default async function ProductDetailPage({ params }: PageProps) {
     brandRepo.findById(product.brandId),
     categoryRepo.findById(product.categoryId),
   ]);
+
+  const session = await auth();
+  const initialCartCount = session?.user?.id
+    ? ((
+        await prisma.cartItem.aggregate({
+          where: { userId: session.user.id },
+          _sum: { quantity: true },
+        })
+      )._sum.quantity ?? 0)
+    : 0;
 
   const inStock = product.stock > 0;
   const lowStock = product.stock > 0 && product.stock <= 5;
@@ -156,7 +168,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <Separator />
 
           <div className="space-y-3">
-            <AddToCartButton productId={product.id} inStock={inStock} maxQuantity={product.stock} />
+            <AddToCartButton
+              productId={product.id}
+              slug={params.slug}
+              inStock={inStock}
+              maxQuantity={product.stock}
+              initialCartCount={initialCartCount}
+            />
             <div className="grid grid-cols-1 gap-2 text-xs text-muted-foreground sm:grid-cols-2">
               <p className="flex items-center gap-2">
                 <Truck className="h-4 w-4" aria-hidden="true" />
