@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { LogIn, LogOut, Package, Search, ShoppingCart, User } from 'lucide-react';
+import { LogIn, Package, Search, ShoppingCart, User } from 'lucide-react';
 
 import { Button } from '@/presentation/components/ui/button';
 import { Input } from '@/presentation/components/ui/input';
 import { Separator } from '@/presentation/components/ui/separator';
+import { LogoutButton } from '@/presentation/components/logout-button';
 import { NavbarCartCount } from '@/presentation/components/navbar-cart-count';
 import { cn } from '@/presentation/lib/utils';
 
@@ -139,11 +140,7 @@ export function ShopNavbar({ session, className }: ShopNavbarProps) {
                   <Link href="/admin">Admin</Link>
                 </Button>
               ) : null}
-              <form action="/api/auth/signout" method="post">
-                <Button type="submit" variant="ghost" size="icon" aria-label="Cerrar sesion">
-                  <LogOut className="h-5 w-5" aria-hidden="true" />
-                </Button>
-              </form>
+              <LogoutButton />
             </>
           ) : (
             <Button asChild variant="default" size="sm">
