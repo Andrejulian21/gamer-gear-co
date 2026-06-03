@@ -15,6 +15,26 @@ import type { Order } from '../entities/Order';
 import type { CartItem } from '../entities/CartItem';
 import type { Address } from '../entities/Address';
 
+import type { AddItemToCartDeps } from '../use-cases/cart/AddItemToCart';
+
+/**
+ * Test factory for AddItemToCartDeps. Pre-wires a mock cart and product
+ * repository so tests that don't exercise stock or product-lookup logic
+ * can stay terse.
+ *
+ * Tests that need to control stock or simulate "product not found" should
+ * build the deps manually with `createMockProductRepository` and seed it.
+ */
+export const createMockAddItemToCartDeps = (
+  overrides: {
+    cartRepository?: CartRepository;
+    productRepository?: ProductRepository;
+  } = {},
+): AddItemToCartDeps => ({
+  cartRepository: overrides.cartRepository ?? createMockCartRepository(),
+  productRepository: overrides.productRepository ?? createMockProductRepository(),
+});
+
 export const createMockUserRepository = (
   overrides: Partial<UserRepository> = {},
 ): UserRepository => {
