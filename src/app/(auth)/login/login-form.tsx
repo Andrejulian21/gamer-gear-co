@@ -16,7 +16,11 @@ function SubmitButton() {
   );
 }
 
-export function LoginForm() {
+interface LoginFormProps {
+  next?: string;
+}
+
+export function LoginForm({ next }: LoginFormProps) {
   const [state, formAction] = useFormState(loginAction, {});
 
   return (
@@ -26,6 +30,7 @@ export function LoginForm() {
           {state.errors._form.join(', ')}
         </div>
       )}
+      {next ? <input type="hidden" name="next" value={next} /> : null}
       <div className="space-y-4 rounded-md shadow-sm">
         <div>
           <label htmlFor="email" className="sr-only">

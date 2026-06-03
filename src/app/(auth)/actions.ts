@@ -87,6 +87,7 @@ export async function loginAction(_prevState: AuthState, formData: FormData): Pr
   }
 
   const { email, password } = parsed.data;
+  const next = sanitizeNext(formData.get('next'));
 
   try {
     await signIn('credentials', {
@@ -102,10 +103,23 @@ export async function loginAction(_prevState: AuthState, formData: FormData): Pr
     };
   }
 
-  redirect('/');
+  redirect(next);
 }
 
 export async function logoutAction() {
   await signOut({ redirect: false });
   redirect('/');
+}
+
+/**
+ * Validates a candidate post-login redirect target. Rejects anything
+ * that isn't a same-origin absolute path so a malicious link can never
+ * bounce the user off-site after authenticating.
+ */
+function sanitizeNext(value: FormDataEntryValue | null): string {
+  if (typeof value !== 'string') return '/';
+  if (!value.startsWith('/')) return '/';
+  if (value.startsWith('//')) return '/';
+  if (value.startsWith('/\\')) return '/';
+  return value;
 }
